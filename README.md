@@ -18,9 +18,11 @@ DeepSeek Harness 的桌面客户端：标准 Windows 窗口 + 系统托盘，窗
   3080 端口，也不会在“重启/退出”时误杀无关进程
 - **日志**：`%LOCALAPPDATA%\dsh-desktop.log`（服务输出 + 事件日志，超 2MB 自动轮转）
 
-## 使用
+## 下载
 
-打包产物在 `dist\`：**双击 `DSH桌面端-1.1.0.exe`** 即用（便携版，无需安装）。
+- **GitHub Releases**：前往 [Releases](https://github.com/The-Voidex/dsh-portable-desktop/releases) 下载
+  `DSH-Portable-Desktop-1.1.0.exe`（便携版，无需安装）。
+- 本地打包产物在 `dist\`（未入库，执行 `npm run dist` 后生成）：`DSH桌面端-1.1.0.exe`。
 
 ## 开发
 
