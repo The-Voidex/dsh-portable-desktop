@@ -1,0 +1,44 @@
+{
+  "name": "dsh-desktop",
+  "version": "1.1.0",
+  "description": "DSH 专属桌面壳 — DeepSeek Harness 桌面客户端（标准窗口 + 系统托盘 + 便携版）",
+  "main": "main.js",
+  "author": "ypkb",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/The-Voidex/dsh-portable-desktop.git"
+  },
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^38.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.local.dsh-desktop",
+    "productName": "DSH桌面端",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "error.html",
+      "icon.ico",
+      "check.png",
+      "blank.png"
+    ],
+    "win": {
+      "target": [
+        "portable"
+      ],
+      "icon": "icon.ico"
+    },
+    "portable": {
+      "artifactName": "DSH桌面端-${version}.exe"
+    }
+  }
+}
