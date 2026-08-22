@@ -21,7 +21,7 @@ DeepSeek Harness 的桌面客户端：标准 Windows 窗口 + 系统托盘，窗
 ## 下载
 
 - **GitHub Releases**：前往 [Releases](https://github.com/The-Voidex/dsh-portable-desktop/releases) 下载
-  `DSH桌面端-1.1.1.exe`（便携版，无需安装）。
+  `DSH-Portable-Desktop-1.1.1.exe`（便携版，无需安装）。
 - 本地打包产物在 `dist\`（未入库，执行 `npm run dist` 后生成）：`DSH桌面端-1.1.1.exe`。
 
 ## 开发
