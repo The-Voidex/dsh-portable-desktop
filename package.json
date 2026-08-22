@@ -1,6 +1,6 @@
 {
   "name": "dsh-desktop",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "DSH 专属桌面壳 — DeepSeek Harness 桌面客户端（标准窗口 + 系统托盘 + 便携版）",
   "main": "main.js",
   "author": "ypkb",

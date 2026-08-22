@@ -1,4 +1,4 @@
-# DSH 桌面端（专属壳）v1.1.0
+# DSH 桌面端（专属壳）v1.1.1
 
 DeepSeek Harness 的桌面客户端：标准 Windows 窗口 + 系统托盘，窗口内就是 DSH Web 界面
 （http://127.0.0.1:3080），数据与会话与浏览器端完全共享（都在 `~/.dsh`）。
@@ -21,8 +21,8 @@ DeepSeek Harness 的桌面客户端：标准 Windows 窗口 + 系统托盘，窗
 ## 下载
 
 - **GitHub Releases**：前往 [Releases](https://github.com/The-Voidex/dsh-portable-desktop/releases) 下载
-  `DSH-Portable-Desktop-1.1.0.exe`（便携版，无需安装）。
-- 本地打包产物在 `dist\`（未入库，执行 `npm run dist` 后生成）：`DSH桌面端-1.1.0.exe`。
+  `DSH桌面端-1.1.1.exe`（便携版，无需安装）。
+- 本地打包产物在 `dist\`（未入库，执行 `npm run dist` 后生成）：`DSH桌面端-1.1.1.exe`。
 
 ## 开发
 
@@ -47,6 +47,14 @@ npm run dist         # 打包便携版 exe（产物在 dist\）
 - `check.png` / `blank.png` —— 托盘菜单图标（绿色勾 / 透明占位）
 
 ## 变更记录
+
+### v1.1.1
+- **修复**：启动竞态导致窗口误报“DSH 服务启动失败”后自动恢复。
+  dsh web 的 TCP 端口在启动早期即绑定，而带 `__DSH_BOOT__` 标记的前端页面要
+  晚几十秒才就绪；旧逻辑只等端口 + 一次性 HTTP 检查，会在服务就绪前抢跑、
+  误弹错误页（随后由健康看护自动重连，表现为“先报错、过一会自己好了”）。
+  现改为轮询等待 HTTP 真正就绪（`waitForDshReady`）再载入窗口——正常启动
+  不再出现错误页闪烁；健康看护自动重连前也先校验 3080 确为 DSH 服务。
 
 ### v1.1.0
 - **修复**：启动/重启桌面端不再自动唤起默认浏览器（`dsh web` 默认会打开浏览器，

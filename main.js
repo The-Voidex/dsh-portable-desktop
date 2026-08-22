@@ -143,6 +143,23 @@ function waitForPortFree(timeoutMs) {
   });
 }
 
+// 等待 3080 上出现“真正就绪”的 DSH 服务。
+// 关键点：TCP 端口在 dsh web 启动早期就绑定，而带 __DSH_BOOT__ 标记的
+// 前端页面（HTTP 就绪）要晚几十秒才可用。只等端口会导致窗口在服务
+// 尚未就绪时抢跑，误弹“启动失败”错误页——这里轮询 isDshServer，
+// 直到 HTTP 真正可服务（或超时），就绪瞬间即可载入，无错误页闪烁。
+function waitForDshReady(timeoutMs, probeMs = 1000) {
+  return new Promise((resolve) => {
+    const start = Date.now();
+    const tick = async () => {
+      if (await isDshServer(2500)) return resolve(true);
+      if (Date.now() - start > timeoutMs) return resolve(false);
+      setTimeout(tick, probeMs);
+    };
+    tick();
+  });
+}
+
 // 把 killPortOwner 的 callback 风格包成 Promise
 function killPortOwnerP() {
   return new Promise((resolve) => killPortOwner(resolve));
@@ -303,16 +320,17 @@ function showError(msg) {
   win.loadFile(ERROR_PAGE, { query: { msg: encodeURIComponent(msg || '未知错误') } });
 }
 
-// 启动/重连：等端口 → 起服务 → 等就绪 → 载入界面
+// 启动/重连：等端口 → 起服务 → 等 HTTP 真正就绪 → 载入界面
 async function loadApp() {
   if (!win || win.isDestroyed()) return;
   const alreadyUp = await waitForServer(3000);
   if (alreadyUp) {
-    if (await isDshServer()) {
+    // 端口已通：给短宽限轮询 DSH 就绪（兼容“服务刚被启动、HTTP 尚未就绪”的瞬间）
+    if (await waitForDshReady(20000)) {
       win.loadURL(WEB_URL);
       return;
     }
-    // 端口被监听但不是 DSH：不覆盖别人的服务，明确提示
+    // 端口被监听但一直不是 DSH：不覆盖别人的服务，明确提示
     showError(`端口 ${PORT} 已被其他程序占用，且不是 DSH 服务。
 请先关闭占用该端口的程序后重试。`);
     return;
@@ -321,8 +339,8 @@ async function loadApp() {
     showError('未找到 dsh 命令。请先在 PowerShell 执行：npm install -g @deepseek-ai/dsh');
     return;
   }
-  const ok = await waitForServer(90000);
-  if (ok && await isDshServer()) {
+  const ok = await waitForDshReady(90000);
+  if (ok) {
     win.loadURL(WEB_URL);
   } else {
     showError(`DSH 服务启动失败（90 秒超时）。请查看日志：${LOG_FILE}`);
@@ -478,6 +496,9 @@ setInterval(async () => {
     const now = Date.now();
     if (now - lastAutoReloadAt < 3000) return;
     lastAutoReloadAt = now;
+    // 端口恢复 ≠ DSH 恢复：先确认 HTTP 就绪（带 __DSH_BOOT__）再重连，
+    // 避免 3080 被其他程序占用时把窗口错误地载入到别人的页面。
+    if (!(await isDshServer(2500))) return;
     const current = win.webContents.getURL();
     if (current.startsWith(WEB_URL) || current === 'about:blank' || current.startsWith('file://')) {
       log('检测到 DSH 服务已恢复，自动重连窗口');
